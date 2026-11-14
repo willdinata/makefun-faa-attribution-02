@@ -3,6 +3,18 @@
 // then widen the bands with the forecast horizon. A small horizon-dependent
 // allowance on the outer quantiles accounts for occasional persistent jumps.
 // The output is bounded, rounded to six decimals, and ordered within each row.
+//
+// A damped 120-minute signed-return drift, clamped to +/-0.0002 per minute,
+// was tested this round. Shifting every quantile by that drift raised practice
+// loss from 0.272297 to 0.352103 and h00 loss from 3.539684 to 3.607378
+// (coverage fell from 0.721875 to 0.646875), so it was rejected. Moving only
+// the median was also rejected: practice loss was 0.298054 despite a small h00
+// improvement to 3.530793. On h00 the unchanged model scored 3.539684 versus
+// the house persistence baseline's 3.801374; Iran and foreign-actor prices
+// drifted below the fixed median and individually lost to baseline, while the
+// AI-escape market supplied 60.7% of loss after a 0.195 one-minute drop below
+// the entire forecast band. This single FAA checkpoint is diagnostic, not a
+// basis for tuning the model.
 
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
